@@ -1,6 +1,43 @@
 import pandas as pd
 import numpy as np
 
+def create_tear_sheet(strategy_returns, benchmark_returns, plot=False):
+    strategy_returns_stats = [annual_return(strategy_returns), 
+                            annual_volatility(strategy_returns),
+                             value_at_risk(strategy_returns),
+                             max_drawdown(strategy_returns),
+                              cagr(strategy_returns),
+                              cagr_over_mdd(strategy_returns)/100,
+                              sharpe_ratio(strategy_returns)/100
+                             ]
+    benchmark_returns_stats = [annual_return(benchmark_returns), 
+                            annual_volatility(benchmark_returns),
+                             value_at_risk(benchmark_returns),
+                             max_drawdown(benchmark_returns),
+                              cagr(benchmark_returns),
+                              cagr_over_mdd(benchmark_returns)/100,
+                              sharpe_ratio(benchmark_returns)/100
+                             ]
+
+    mini_tear_sheet = pd.DataFrame()
+
+    mini_tear_sheet['strategy'] = [round(x*100,2) for x in strategy_returns_stats]
+
+    mini_tear_sheet['benchmark'] = [round(x*100,2) for x in benchmark_returns_stats]
+
+    mini_tear_sheet.index = ['Annual Return',
+                            'Annual Volatility',
+                            'Value at Risk',
+                            'Max Drawdown',
+                            'CAGR',
+                            'MAR Ratio',
+                            'Sharpe Ratio']
+
+    if plot == True:
+        ax1 = plot_rolling_sharpe(strategy_returns, benchmark_returns)
+
+    return mini_tear_sheet
+
 def annual_return(returns):
     """
     Determines the mean annual growth rate of returns. This is equivilent
@@ -435,41 +472,4 @@ def plot_rolling_sharpe(strategy_returns, benchmark_returns, rolling_window=21 *
     ax.set_xlabel('')
     ax.legend(['Strategy Sharpe', 'Benchmark Sharpe', 'Strategy Average'],
               loc=legend_loc, frameon=True, framealpha=0.5)
-    return ax        
-
-def create_tear_sheet(strategy_returns, benchmark_returns, plot=False):
-    strategy_returns_stats = [annual_return(strategy_returns), 
-                            annual_volatility(strategy_returns),
-                             value_at_risk(strategy_returns),
-                             max_drawdown(strategy_returns),
-                              cagr(strategy_returns),
-                              cagr_over_mdd(strategy_returns)/100,
-                              sharpe_ratio(strategy_returns)/100
-                             ]
-    benchmark_returns_stats = [annual_return(benchmark_returns), 
-                            annual_volatility(benchmark_returns),
-                             value_at_risk(benchmark_returns),
-                             max_drawdown(benchmark_returns),
-                              cagr(benchmark_returns),
-                              cagr_over_mdd(benchmark_returns)/100,
-                              sharpe_ratio(benchmark_returns)/100
-                             ]
-
-    mini_tear_sheet = pd.DataFrame()
-
-    mini_tear_sheet['strategy'] = [round(x*100,2) for x in strategy_returns_stats]
-
-    mini_tear_sheet['benchmark'] = [round(x*100,2) for x in benchmark_returns_stats]
-
-    mini_tear_sheet.index = ['Annual Return',
-                            'Annual Volatility',
-                            'Value at Risk',
-                            'Max Drawdown',
-                            'CAGR',
-                            'MAR Ratio',
-                            'Sharpe Ratio']
-
-    if plot == True:
-        ax1 = plot_rolling_sharpe(strategy_returns, benchmark_returns)
-
-    return mini_tear_sheet
+    return ax 

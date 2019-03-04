@@ -12,7 +12,7 @@ There's probably some more statistics you might want - please open an issue and 
 
 1) Prepare your strategy for evaluation by creating a `pd.Series` of the daily returns of your strategy, and the daily returns of a benchmark strategy.
 
-2) Feed the returns to the `mini_tear_sheet` function. 
+2) Feed the returns to `create_tear_sheet` function. 
 
 3) Voila! 
 
