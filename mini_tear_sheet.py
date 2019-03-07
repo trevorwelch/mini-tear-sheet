@@ -404,7 +404,7 @@ def rolling_sharpe(returns, rolling_sharpe_window):
 
 
 def cagr_over_mdd(returns):
-    return (cagr(returns)*100) / (max_drawdown(returns)*100)
+    return (cagr(returns)*100) / (max_drawdown(returns)*100*-1)
 
 
 ### PLOTTING ###
