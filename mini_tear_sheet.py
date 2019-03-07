@@ -63,12 +63,12 @@ def annual_return(returns):
 
     num_years = len(returns) / 252
     # Pass array to ensure index -1 looks up successfully.
-    ending_value = cum_returns_final(returns, starting_value=1)
+    ending_value = cum_returns_final(returns, starting_value=100000)
 
     return ending_value ** (1 / num_years) - 1  
 
 
-def cum_returns_final(returns, starting_value=0):
+def cum_returns_final(returns, starting_value=100000):
     """
     Compute total returns from simple returns.
 
@@ -260,7 +260,7 @@ def max_drawdown(returns, out=None):
         (returns.shape[0] + 1,) + returns.shape[1:],
         dtype='float64',
     )
-    cumulative[0] = start = 100
+    cumulative[0] = start = 100000
     cum_returns(returns_array, starting_value=start, out=cumulative[1:])
 
     max_return = np.fmax.accumulate(cumulative, axis=0)
