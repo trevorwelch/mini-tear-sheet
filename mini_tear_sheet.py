@@ -1,7 +1,10 @@
 import pandas as pd
 import numpy as np
 
-def create_tear_sheet(strategy_returns, benchmark_returns, plot=False):
+def create_tear_sheet(strategy_returns, benchmark_returns=None, plot=False):
+
+    mini_tear_sheet = pd.DataFrame()
+
     strategy_returns_stats = [annual_return(strategy_returns), 
                             annual_volatility(strategy_returns),
                              value_at_risk(strategy_returns),
@@ -10,20 +13,19 @@ def create_tear_sheet(strategy_returns, benchmark_returns, plot=False):
                               cagr_over_mdd(strategy_returns)/100,
                               sharpe_ratio(strategy_returns)/100
                              ]
-    benchmark_returns_stats = [annual_return(benchmark_returns), 
-                            annual_volatility(benchmark_returns),
-                             value_at_risk(benchmark_returns),
-                             max_drawdown(benchmark_returns),
-                              cagr(benchmark_returns),
-                              cagr_over_mdd(benchmark_returns)/100,
-                              sharpe_ratio(benchmark_returns)/100
-                             ]
-
-    mini_tear_sheet = pd.DataFrame()
 
     mini_tear_sheet['strategy'] = [round(x*100,2) for x in strategy_returns_stats]
+    if benchmark_returns:
+        benchmark_returns_stats = [annual_return(benchmark_returns), 
+                                annual_volatility(benchmark_returns),
+                                 value_at_risk(benchmark_returns),
+                                 max_drawdown(benchmark_returns),
+                                  cagr(benchmark_returns),
+                                  cagr_over_mdd(benchmark_returns)/100,
+                                  sharpe_ratio(benchmark_returns)/100
+                                 ]
 
-    mini_tear_sheet['benchmark'] = [round(x*100,2) for x in benchmark_returns_stats]
+        mini_tear_sheet['benchmark'] = [round(x*100,2) for x in benchmark_returns_stats]
 
     mini_tear_sheet.index = ['Annual Return',
                             'Annual Volatility',
@@ -63,12 +65,12 @@ def annual_return(returns):
 
     num_years = len(returns) / 252
     # Pass array to ensure index -1 looks up successfully.
-    ending_value = cum_returns_final(returns, starting_value=100000)
+    ending_value = cum_returns_final(returns, starting_value=1)
 
     return ending_value ** (1 / num_years) - 1  
 
 
-def cum_returns_final(returns, starting_value=100000):
+def cum_returns_final(returns, starting_value=2000):
     """
     Compute total returns from simple returns.
 
@@ -84,17 +86,11 @@ def cum_returns_final(returns, starting_value=100000):
     total_returns : pd.Series, np.ndarray, or float
         If input is 1-dimensional (a Series or 1D numpy array), the result is a
         scalar.
-
-        If input is 2-dimensional (a DataFrame or 2D numpy array), the result
-        is a 1D array containing cumulative returns for each column of input.
     """
     if len(returns) == 0:
         return np.nan
 
-    if isinstance(returns, pd.DataFrame):
-        result = (returns + 1).prod()
-    else:
-        result = np.nanprod(returns + 1, axis=0)
+    result = np.nanprod(returns + 1, axis=0)
 
     if starting_value == 0:
         result -= 1
@@ -103,7 +99,7 @@ def cum_returns_final(returns, starting_value=100000):
 
     return result    
 
-def cum_returns(returns, starting_value=100000, out=None):
+def cum_returns(returns, starting_value=2000, out=None):
     """
     Compute cumulative returns from simple returns.
 
@@ -211,7 +207,6 @@ def value_at_risk(returns, sigma=2.0):
     ----------
     returns : pd.Series
         Daily returns of the strategy, noncumulative.
-         - See full explanation in tears.create_full_tear_sheet.
 
     sigma : float, optional
         Standard deviations of VaR, default 2.
@@ -260,7 +255,7 @@ def max_drawdown(returns, out=None):
         (returns.shape[0] + 1,) + returns.shape[1:],
         dtype='float64',
     )
-    cumulative[0] = start = 100000
+    cumulative[0] = start = 2000
     cum_returns(returns_array, starting_value=start, out=cumulative[1:])
 
     max_return = np.fmax.accumulate(cumulative, axis=0)
@@ -354,7 +349,7 @@ def cagr(returns):
     Compound Annual Growth Rate, given an initial and a final value for an investment,
     as well as the time elapsed (in years or fractions of years)
     """
-    initial = 100000
+    initial = 2000
     final = round(calc_end_value_from_returns(returns),2)
 
     n_days = (returns.index[-1] - returns.index[0]).days
@@ -372,7 +367,7 @@ def calc_end_value_from_returns(returns):
         (returns.shape[0] + 1,) + returns.shape[1:],
         dtype='float64',
     )
-    cumulative[0] = start = 100000
+    cumulative[0] = start = 2000
     return cum_returns(returns.values, starting_value=start, out=cumulative[1:])[-1]
 
 
@@ -382,9 +377,6 @@ def rolling_sharpe(returns, rolling_sharpe_window):
 
     Parameters
     ----------
-    returns : pd.Series
-        Daily returns of the strategy, noncumulative.
-         - See full explanation in tears.create_full_tear_sheet.
     rolling_sharpe_window : int
         Length of rolling window, in days, over which to compute.
 
@@ -409,9 +401,8 @@ def cagr_over_mdd(returns):
 
 ### PLOTTING ###
 
-def plot_rolling_sharpe(strategy_returns, benchmark_returns, rolling_window=21 * 6,
+def plot_rolling_sharpe(strategy_returns, benchmark_returns=None, rolling_window=21 * 1,
                         legend_loc='best', ax=None, **kwargs):
-    
 
     from matplotlib import pyplot as plt
     from matplotlib.ticker import FuncFormatter
@@ -457,9 +448,13 @@ def plot_rolling_sharpe(strategy_returns, benchmark_returns, rolling_window=21 *
         strategy_returns, rolling_window)
     rolling_sharpe_ts.plot(alpha=.7, lw=3, color='green', ax=ax)
 
-    rolling_sharpe_ts = rolling_sharpe(
-        benchmark_returns, rolling_window)
-    rolling_sharpe_ts.plot(alpha=.2, lw=3, color='blue', ax=ax)
+    if benchmark_returns:
+        rolling_sharpe_ts = rolling_sharpe(
+            benchmark_returns, rolling_window)
+        rolling_sharpe_ts.plot(alpha=.2, lw=3, color='blue', ax=ax)
+        legend_axis = ['Strategy Sharpe', 'Benchmark Sharpe', 'Strategy Average']
+    else:
+        legend_axis = ['Strategy Sharpe', 'Strategy Average']
 
     ax.set_title('Rolling Sharpe ratio (6-month)')
     ax.axhline(
@@ -470,6 +465,6 @@ def plot_rolling_sharpe(strategy_returns, benchmark_returns, rolling_window=21 *
     # ax.axhline(0.0, color='black', linestyle='-', lw=3)
     ax.set_ylabel('Sharpe ratio')
     ax.set_xlabel('')
-    ax.legend(['Strategy Sharpe', 'Benchmark Sharpe', 'Strategy Average'],
+    ax.legend(legend_axis,
               loc=legend_loc, frameon=True, framealpha=0.5)
     return ax 
