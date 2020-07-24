@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def create_tear_sheet(strategy_returns, benchmark_returns=None, plot=False):
+def create_tear_sheet(strategy_returns, strategy_name=None, benchmark_returns=None, plot=False):
 
     mini_tear_sheet = pd.DataFrame()
 
@@ -27,6 +27,8 @@ def create_tear_sheet(strategy_returns, benchmark_returns=None, plot=False):
 
         mini_tear_sheet['benchmark'] = [round(x*100,2) for x in benchmark_returns_stats]
 
+    if strategy_name:
+        mini_tear_sheet.columns = [strategy_name]
     mini_tear_sheet.index = ['Annual Return',
                             'Annual Volatility',
                             'Value at Risk',
@@ -34,6 +36,7 @@ def create_tear_sheet(strategy_returns, benchmark_returns=None, plot=False):
                             'CAGR',
                             'MAR Ratio',
                             'Sharpe Ratio']
+
 
     if plot == True:
         ax1 = plot_rolling_sharpe(strategy_returns, benchmark_returns)

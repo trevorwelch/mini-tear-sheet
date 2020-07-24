@@ -20,6 +20,6 @@ I've included sample strategy data (buy-n-hold AAPL as your strategy, buy-n-hold
 
 Have fun! And if you're just getting started with algotrading:
 
-> First, ask youself if the allure of skimming a few pennies off the top of a corrupt system that will overtake your life, blacken your soul, and bankrupt you in the process is the best use of your talents. No? Good choice; back to Hacker News. Yes? Get a second opinion from your mother. I’ll wait.
+> First, ask yourself if the allure of skimming a few pennies off the top of a corrupt system that will overtake your life, blacken your soul, and bankrupt you in the process is the best use of your talents. No? Good choice; back to Hacker News. Yes? Get a second opinion from your mother. I’ll wait.
 
 ~ "Doctor J"
