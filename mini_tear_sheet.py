@@ -29,6 +29,7 @@ def create_tear_sheet(strategy_returns, strategy_name=None, benchmark_returns=No
 
     if strategy_name:
         mini_tear_sheet.columns = [strategy_name]
+
     mini_tear_sheet.index = ['Annual Return',
                             'Annual Volatility',
                             'Value at Risk',
@@ -272,7 +273,7 @@ def max_drawdown(returns, out=None):
     return out    
 
 def sharpe_ratio(returns,
-                 risk_free=0.00,
+                 risk_free=0.0,
                  out=None):
     """
     Determines the Sharpe ratio of a strategy.
